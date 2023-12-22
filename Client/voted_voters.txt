@@ -1,0 +1,2 @@
+Voter 1
+Voter 2

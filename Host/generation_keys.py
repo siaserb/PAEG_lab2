@@ -4,8 +4,8 @@ from math import gcd
 
 def generate_keypair():
     # обираємо прості числа p та q
-    p = generate_prime_number(100, 1000)
-    q = generate_prime_number(100, 1000)
+    p = generate_prime_number(100, 10000)
+    q = generate_prime_number(100, 10000)
 
     print(f'Прості множники:p={p}; q={q}')
 

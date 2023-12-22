@@ -5,8 +5,10 @@ from checks_and_records import *
 
 def main():
     # GoTo: rewrite oblik.txt
-    candidates = [1, 2, 3, 4]
-    voters = ['Voter 1', 'Voter 2', 'Voter 3', 'Voter 4', 'Voter 5']
+    candidates = (1, 2, 3, 4)
+    voters = ('Voter 1', 'Voter 2', 'Voter 3', 'Voter 4', 'Voter 5')
+
+
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(('127.0.0.1', 8345))
@@ -20,7 +22,6 @@ def main():
         public_key, private_key = generate_keypair()
         print(f'Приватний ключ:{private_key}, публічний ключ:{public_key}')
 
-        e = public_key[0]
         d = private_key[0]
         n = private_key[1]
 
@@ -29,6 +30,12 @@ def main():
 
         data = client_socket.recv(1024)
         print('Отримані дані від клієнта:', data.decode('utf-8'))
+
+        client_socket.sendall(str(candidates).encode('utf-8'))
+        print(client_socket.recv(1024).decode('utf-8'))
+
+        client_socket.sendall(str(voters).encode('utf-8'))
+        print(client_socket.recv(1024).decode('utf-8'))
 
         client_socket.sendall(str(public_key).encode('utf-8'))
 
