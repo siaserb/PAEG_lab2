@@ -39,9 +39,11 @@ def main():
 
     signed_message = client_socket.recv(1024)
     signed_message = eval(signed_message.decode('utf-8'))
-    if signed_message == "Відмова, виявлено шахрая":
-        print("Поліція уже виїхала")
-        return
+
+    # if signed_message == "Відмова, виявлено шахрая":
+    #     print("Поліція уже виїхала")
+    #     return
+
     print('Отримані дані від сервера(підписане повідомлення ВК):', signed_message)
 
     decoded_signed_message = decode_signed_message(signed_message, r, n)

@@ -14,14 +14,16 @@ def main():
 
     print('Сервер слухає на порті 8345...')
 
-    public_key, private_key = generate_keypair()
-    print(f'Приватний ключ:{private_key}, публічний ключ:{public_key}')
-
-    e = public_key[0]
-    d = private_key[0]
-    n = private_key[1]
-
     while True:
+        print(f'****************************  Початок сесії  ****************************\n')
+
+        public_key, private_key = generate_keypair()
+        print(f'Приватний ключ:{private_key}, публічний ключ:{public_key}')
+
+        e = public_key[0]
+        d = private_key[0]
+        n = private_key[1]
+
         client_socket, client_address = server_socket.accept()
         print(f'''З'єднано з {client_address}''')
 
@@ -41,28 +43,28 @@ def main():
         signed_messages = sign_messages(encoded_messages, d, n)
         encoded_messages_for_check = encoded_messages[:random_number] + encoded_messages[random_number + 1:]
 
-        voter_id = encoded_messages_for_check[1][0][:-1]
-        if check_voter_id(voter_id):
-            client_socket.sendall("Відмова, виявлено шахрая".encode('utf-8'))
+        # voter_id = encoded_messages_for_check[1][0][:-1]
+        # if check_voter_id(voter_id):
+        #     client_socket.sendall("Відмова, виявлено шахрая".encode('utf-8'))
+        #     continue
+        # else:
+        decoded_messages = decode_messages(encoded_messages_for_check, d, r, n)
+        print('Розшифровані 9 повідомлень для перевірки:', decoded_messages)
+
+        print('Підписане повідомлення ВК:', signed_messages[random_number])
+        client_socket.sendall(str(signed_messages[random_number]).encode('utf-8'))
+
+        bullet = int(client_socket.recv(1024).decode('utf-8'))
+        print('Отримані дані від клієнта(підписаний бюлетень з голосом):', bullet)
+
+        decoded_bullet = decode_bullet(bullet, d, n)
+        print('Розшифрований бюлетень:', decoded_bullet)
+
+        if decoded_bullet not in signed_messages[random_number]:
+            print('Надісланий бюлетень не був підписаний ВК!\n')
             continue
         else:
-            decoded_messages = decode_messages(encoded_messages_for_check, d, r, n)
-            print('Розшифровані 9 повідомлень для перевірки:', decoded_messages)
-
-            print('Підписане повідомлення ВК:', signed_messages[random_number])
-            client_socket.sendall(str(signed_messages[random_number]).encode('utf-8'))
-
-            bullet = int(client_socket.recv(1024).decode('utf-8'))
-            print('Отримані дані від клієнта(підписаний бюлетень з голосом):', bullet)
-
-            decoded_bullet = decode_bullet(bullet, d, n)
-            print('Розшифрований бюлетень:', decoded_bullet)
-
-            if decoded_bullet not in signed_messages[random_number]:
-                print('Надісланий бюлетень не був підписаний ВК!\n')
-                continue
-            else:
-                print(f'************************ Голосування успішне! ************************\n\n')
+            print(f'************************ Голосування успішне! ************************\n')
 
         client_socket.close()
 
