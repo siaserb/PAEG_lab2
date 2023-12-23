@@ -9,11 +9,28 @@ def generate_coprime(n, lower_bound, upper_bound):
 
 
 # функція для генерації id виборця
-def generate_id(n, r):
+def generate_id(public_key, masking_factor):
     while True:
         id = random.randint(1, 999)
-        if (id * 10 + 9) * r < n:
+        if (id * 10 + 9) * masking_factor < public_key and id > 100:
             return id
+
+
+def get_user_id(public_key, masking_factor):
+    while True:
+        user_id = generate_id(public_key, masking_factor)
+        with open('voters_id.txt', 'a+') as file:
+            existing_ids = file.read().splitlines()
+            if user_id in existing_ids:
+                continue
+            else:
+                # all_id = existing_ids + [user_id]
+                # random.shuffle(all_id)
+                # file.seek(0)
+                # file.truncate()
+                # file.write('\n'.join(map(str, all_id)))
+                file.write(str(user_id) + '\n')
+                return user_id
 
 
 # функція для генерації заданої кількості повідомлень з бюлетенями від виборця

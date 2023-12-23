@@ -1,17 +1,14 @@
 import socket
 from client_functions import *
 
+
 def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('127.0.0.1', 8345))
+    client_socket.connect(('127.0.0.1', 8346))
 
     # Надсилаємо тестове повідомлення до ВК
     message_to_server = 'Привіт, сервачок!'
     client_socket.sendall(message_to_server.encode('utf-8'))
-
-    # Відкриваємо файл для запису та читання з виборцями що проголосували
-    with open('voted_voters.txt', 'r') as file:
-        voted_voters = file.read().splitlines()
 
     # Отримуємо список кандидатів від ВК
     candidates = eval(client_socket.recv(1024).decode('utf-8'))
@@ -23,12 +20,16 @@ def main():
     client_socket.sendall('Список виборців отримано!'.encode('utf-8'))
     print('До голосування допущені наступні виборці:', voters)
 
-    # Виборець вводить своє ім'я та відбувається перевірка
-    name = input('Введіть ваше ім\'я:')
-    if name not in voters:
-        exit('В даного виборця немає права голосу!')
-    elif name in voted_voters:
-        exit('Даний виборець вже голосував!')
+    # Відкриваємо файл для запису та читання з виборцями що проголосували
+    with open('voted_voters.txt', 'r') as file:
+        voted_voters = file.read().splitlines()
+
+        # Виборець вводить своє ім'я та відбувається перевірка
+        name = input('Введіть ваше ім\'я:')
+        if name not in voters:
+            exit('В даного виборця немає права голосу!')
+        elif name in voted_voters:
+            exit('Даний виборець вже голосував!')
 
     # Отримуємо публічний ключ ВК
     public_key = eval(client_socket.recv(1024).decode('utf-8'))
@@ -41,19 +42,7 @@ def main():
     print('Маскувальний множник:', r)
 
     # Генеруємо id виборця
-    while True:
-        user_id = generate_id(n, r)
-        with open('voters_id.txt', 'a+') as file:
-            existing_ids = file.read().splitlines()
-            if user_id in existing_ids:
-                continue
-            else:
-                all_ids = existing_ids + [user_id]
-                random.shuffle(all_ids)
-                file.seek(0)
-                file.truncate()
-                file.write('\n'.join(map(str, all_ids)))
-                break
+    user_id = get_user_id(n, r)
 
     # Генеруємо повідомлення
     messages = generate_messages(user_id, candidates, 10)
@@ -92,9 +81,10 @@ def main():
 
     client_socket.close()
 
-    # Здійснюємо запис виборця до файлу з вже проголосувавшими виборцями
+    # Здійснюємо запис виборця до файлу з виборцями, що вже проголосували
     with open('voted_voters.txt', 'a') as file:
         file.write(f"{name}\n")
+
 
 if __name__ == '__main__':
     main()
