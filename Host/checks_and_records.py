@@ -10,10 +10,8 @@ def get_candidates_list() -> list:
 
 def check_voter_id(id: int) -> bool:
     with open("oblik.txt", 'r') as file:
-        if id in file.read().splitlines():
-            return True
-        else:
-            return False
+        return id in map(int, file.read().splitlines())
+
 
 
 def messages_format_check(messages) -> bool:
@@ -60,3 +58,30 @@ def decode_bullet(bullet, d, n):
 def add_vote_to_result(voter_id, candidate) -> None:
     with open("results.txt", 'a') as results:
         results.write(f'{(candidate, voter_id)}\n')
+
+
+def unsign_bullet(signed_bullet, e, n, d, r):
+
+    unsigned_bullet = pow(signed_bullet, e, n)
+    unsigned_bullet_again = int(pow(unsigned_bullet, d, n) / r)
+    return unsigned_bullet_again
+
+
+def parse_line(line):
+
+    parts = line.strip('()\n').split(', ')
+    numbers = [int(part) for part in parts]
+    return numbers
+
+def count_votes(filename, candidates):
+
+    vote_counts = {int(candidate): 0 for candidate in candidates}
+
+    with open(filename, 'r') as file:
+        for line in file:
+            candidate, vote = parse_line(line)
+            if candidate in vote_counts:
+                vote_counts[candidate] += 1
+
+    vote_counts_tuple = tuple(vote_counts.items())
+    return vote_counts_tuple

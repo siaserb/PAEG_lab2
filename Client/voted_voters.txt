@@ -1,3 +1,0 @@
-Voter 1
-Voter 2
-Voter 3
